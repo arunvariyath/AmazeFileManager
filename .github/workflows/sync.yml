@@ -1,0 +1,25 @@
+name: Sync Fork
+
+on:
+  schedule:
+    - cron: '0 * * * *' # This runs the job every hour
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set upstream remote
+        run: git remote add upstream git@github.com:TeamAmaze/AmazeFileManager.git
+
+      - name: Fetch upstream changes
+        run: git fetch upstream
+
+      - name: Merge upstream changes
+        run: git merge upstream/master --no-edit
+
+      - name: Push changes to fork
+        run: git push origin master
