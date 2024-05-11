@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2020 Arpit Khurana <arpitkh96@gmail.com>, Vishal Nehra <vishalmeham2@gmail.com>,
+ * Copyright (C) 2014-2024 Arpit Khurana <arpitkh96@gmail.com>, Vishal Nehra <vishalmeham2@gmail.com>,
  * Emmanuel Messulam<emmanuelbendavid@gmail.com>, Raymond Lai <airwave209gt at gmail.com> and Contributors.
  *
  * This file is part of Amaze File Manager.
@@ -33,7 +33,6 @@ import com.amaze.filemanager.R;
 import com.amaze.filemanager.adapters.SearchRecyclerViewAdapter;
 import com.amaze.filemanager.asynchronous.asynctasks.searchfilesystem.SearchResult;
 import com.amaze.filemanager.asynchronous.asynctasks.searchfilesystem.SearchResultListSorter;
-import com.amaze.filemanager.filesystem.HybridFileParcelable;
 import com.amaze.filemanager.filesystem.files.sort.DirSortBy;
 import com.amaze.filemanager.filesystem.files.sort.SortBy;
 import com.amaze.filemanager.filesystem.files.sort.SortOrder;
@@ -376,11 +375,7 @@ public class SearchView {
     ArrayList<SearchResult> items = new ArrayList<>(newResults);
     Collections.sort(
         items, new SearchResultListSorter(DirSortBy.NONE_ON_TOP, sortType, searchTerm));
-    ArrayList<HybridFileParcelable> files = new ArrayList<>();
-    for (SearchResult searchResult : items) {
-      files.add(searchResult.getFile());
-    }
-    searchRecyclerViewAdapter.submitList(files);
+    searchRecyclerViewAdapter.submitList(items);
     searchRecyclerViewAdapter.notifyDataSetChanged();
   }
 
@@ -412,9 +407,13 @@ public class SearchView {
     } else {
       // TODO:ViewAnimationUtils.createCircularReveal
       animator = ObjectAnimator.ofFloat(searchViewLayout, "alpha", 0f, 1f);
+
+      searchViewLayout.bringToFront(); // since android:elevation won't work
+      searchViewEditText.requestFocus(); // for keyboard auto-popup
     }
 
     mainActivity.showSmokeScreen();
+    mainActivity.hideFab();
 
     animator.setInterpolator(new AccelerateDecelerateInterpolator());
     animator.setDuration(600);
@@ -546,6 +545,7 @@ public class SearchView {
 
     // removing background fade view
     mainActivity.hideSmokeScreen();
+    mainActivity.showFab();
     animator.setInterpolator(new AccelerateDecelerateInterpolator());
     animator.setDuration(600);
     animator.start();
